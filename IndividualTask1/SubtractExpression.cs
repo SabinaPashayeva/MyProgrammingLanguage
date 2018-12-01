@@ -3,21 +3,20 @@ using System.Linq.Expressions;
 
 namespace IndividualTask1
 {
-    public class SubtractExpression : IExpression
+    public class SubtractExpression : TerminalExpression, IExpression
     {
-        IExpression leftExpression;
-        IExpression rightExpression;
-
-        public SubtractExpression(IExpression left, IExpression right)
-        {
-            leftExpression = left;
-            rightExpression = right;
+        public SubtractExpression() 
+        { 
         }
 
-        public Expression Interpret(Context context)
+        public SubtractExpression(IExpression left, IExpression right) : base(left, right)
         {
-            return Expression.Subtract(leftExpression.Interpret(context),
-                                  rightExpression.Interpret(context));
+        }
+
+        public Expression Interpret()
+        {
+            return Expression.Subtract(leftExpression.Interpret(),
+                                  rightExpression.Interpret());
         }
     }
 }

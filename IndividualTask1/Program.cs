@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace IndividualTask1
 {
@@ -7,20 +9,11 @@ namespace IndividualTask1
     {
         static void Main(string[] args)
         {
-            Context context = new Context();
+            string a = "12 + 43.2312 ^ 1 ^ 3 - 32 / 12";
 
-            context.SetVariable("a", 12);
-            context.SetVariable("b", 10);
+            var expression = ExpressionTreeBuilder.TransformToExpressionTree(a);
 
-            IExpression expression = new DivideExpression(
-                new MultiplyExpression(
-                    new AddExpression(
-                        new NumberExpression("a"),
-                        new NumberExpression("b")
-                    ), new NumberExpression(10)
-                ), new NumberExpression(2));
-
-            int result = Expression.Lambda<Func<int>>(expression.Interpret(context)).Compile()();
+            double result = Expression.Lambda<Func<double>>(expression.Interpret()).Compile()();
 
             Console.WriteLine(result);
         }

@@ -5,6 +5,6 @@ namespace IndividualTask1
 {
     public interface IExpression
     {
-        Expression Interpret(Context context);
+        Expression Interpret();
     }
 }

@@ -3,21 +3,20 @@ using System.Linq.Expressions;
 
 namespace IndividualTask1
 {
-    public class AddExpression : IExpression
+    public class AddExpression : TerminalExpression,IExpression
     {
-        IExpression leftExpression;
-        IExpression rightExpression;
-
-        public AddExpression(IExpression left, IExpression right)
+        public AddExpression()
         {
-            leftExpression = left;
-            rightExpression = right;
         }
 
-        public Expression Interpret(Context context)
+        public AddExpression(IExpression left, IExpression right) : base(left, right)
         {
-            return Expression.Add(leftExpression.Interpret(context),
-                                  rightExpression.Interpret(context));
+        }
+
+        public Expression Interpret()
+        {
+            return Expression.Add(leftExpression.Interpret(),
+                                  rightExpression.Interpret());
         }
     }
 }
