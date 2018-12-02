@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace IndividualTask1
 {
     public static class ExpressionTreeBuilder
     {
         private static Dictionary<Type, OperationPriority> keyValuePairs;
+        private static ParameterExpression[] parameters;
 
         static ExpressionTreeBuilder()
         {
@@ -22,7 +24,9 @@ namespace IndividualTask1
         public static IExpression TransformToExpressionTree(string input)
         {
             Parser parser = new Parser(input);
-            List<IExpression> initialExpressions = new List<IExpression>(parser.CreateObjectList());
+            List<IExpression> initialExpressions = new List<IExpression>(parser.CreateObjectListFromFormula());
+            parameters = new ParameterExpression[parser.Parameters.Count];
+            parser.Parameters.CopyTo(parameters);
 
             for (int i = 0; i < keyValuePairs.Count; i++)
             {
@@ -49,10 +53,30 @@ namespace IndividualTask1
                     }
                 }
             }
-            if (initialExpressions.Count == 1)
-                return initialExpressions[0];
 
-            return null;
+            return initialExpressions.Count == 1 ? initialExpressions[0] : null;
+        }
+
+        public static T Build<T>(string formula)
+        {
+            var expression = TransformToExpressionTree(formula);
+
+            try
+            {
+                var lambdaExpr = Expression.Lambda<T>(expression.Interpret(), parameters);
+
+                return lambdaExpr.Compile();
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return default(T);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                Console.WriteLine(nullEx.Message);
+                return default(T);
+            }
         }
     }
 

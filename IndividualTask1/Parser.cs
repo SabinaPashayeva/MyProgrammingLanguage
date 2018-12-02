@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
 namespace IndividualTask1
@@ -9,7 +10,8 @@ namespace IndividualTask1
     {
         private string _inputString;
 
-        private Regex constantRegex = new Regex("\\d+(\\.\\d*)?");
+        private Regex constantRegex = new Regex("\\b\\d+(\\.\\d*)?\\b");
+        private Regex parameterRegex = new Regex("\\b[a-z,A-Z]\\w*\\b");
         private Regex plusRegex = new Regex("\\+");
         private Regex minusRegex = new Regex("\\-");
         private Regex multRegex = new Regex("\\*");
@@ -17,7 +19,7 @@ namespace IndividualTask1
         private Regex powerRegex = new Regex("\\^");
 
         private Dictionary<Regex, Func<IExpression>> typeList;
-        private List<string> tokenList;
+        public List<ParameterExpression> Parameters { get; private set; }
 
         public Parser(string input)
         {
@@ -29,74 +31,45 @@ namespace IndividualTask1
                 { minusRegex, () => { return new SubtractExpression(); }},
                 { multRegex, () => { return new MultiplyExpression(); }},
                 { divideRegex, () => { return new DivideExpression(); }},
-                { powerRegex, () => { return new PowerExpression(); }}
+                { powerRegex, () => { return new PowerExpression(); }},
+                { parameterRegex, () => { return new VariableExpression(); }}
             };
+
+            Parameters = new List<ParameterExpression>();
         }
 
-        public List<IExpression> CreateObjectList() 
+        public List<IExpression> CreateObjectListFromFormula()
         {
-            GetTokenList();
-            List<IExpression> emptyObjectList = new List<IExpression>();
+            Dictionary<int, IExpression> emptyObjectPosition = new Dictionary<int, IExpression>();
 
-            foreach (string token in tokenList)
+            foreach (Regex pattern in typeList.Keys)
             {
-                foreach (Regex pattern in typeList.Keys)
-                {
-                    if (pattern.IsMatch(token))
-                    {
-                        IExpression expression = typeList[pattern]();
+                foreach (Match match in pattern.Matches(_inputString))
+                    emptyObjectPosition.Add(match.Index,
+                                            CreateCorrespondingObject(pattern, match.Value));
 
-                        if (expression is NumberExpression)
-                            ((NumberExpression)expression).Constant = Double.Parse(token);
-                       
-                        emptyObjectList.Add(expression);
-                        
-                        break;
-                    }
-                }
             }
-            return emptyObjectList;
+
+            var list = emptyObjectPosition.OrderBy(key => key.Key).Select(k => k.Value).ToList();
+
+            return list;
         }
 
-        private void GetTokenList() 
+        private IExpression CreateCorrespondingObject(Regex pattern, string input)
         {
-            tokenList = new List<string>();
-            bool isPreviousDigit = false;
-            int start = 0;
-            int count = 0;
+            IExpression expression = typeList[pattern]();
 
-            for (int i = 0; i < _inputString.Length; i++)
+            if (expression is NumberExpression)
+                ((NumberExpression)expression).Constant = Double.Parse(input);
+
+            if (expression is VariableExpression)
             {
-                char currentChar = _inputString[i];
-                if (!isPreviousDigit && Char.IsDigit(currentChar))
-                {
-                    start = i;
-                    count++;
-                    isPreviousDigit = true;
-
-                    if (i == _inputString.Length - 1) tokenList.Add(_inputString.Substring(start));
-                    continue;
-                }
-                if (isPreviousDigit && (Char.IsDigit(currentChar) || currentChar == '.') )
-                {
-                    count++;
-                    isPreviousDigit = true;
-
-                    if (i == _inputString.Length - 1) tokenList.Add(_inputString.Substring(start));
-                    continue;
-                }
-                if (isPreviousDigit && !Char.IsDigit(currentChar) && currentChar != '.') 
-                {
-                    tokenList.Add(_inputString.Substring(start, count));
-                }
-                if (!Char.IsWhiteSpace(currentChar))
-                {
-                    tokenList.Add(currentChar.ToString());
-                }
-                isPreviousDigit = false;
-                start = 0;
-                count = 0;
+                var param = Expression.Parameter(typeof(double));
+                Parameters.Add(param);
+                ((VariableExpression)expression).Parameter = param;
             }
+
+            return expression;
         }
 
     }

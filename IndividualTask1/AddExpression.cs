@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace IndividualTask1
 {
-    public class AddExpression : TerminalExpression,IExpression
+    public class AddExpression : TerminalExpression, IExpression
     {
         public AddExpression()
         {
