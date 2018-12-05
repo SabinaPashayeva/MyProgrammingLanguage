@@ -7,26 +7,25 @@ namespace IndividualTask1
     public static class ExpressionTreeBuilder
     {
         private static Dictionary<Type, OperationPriority> keyValuePairs;
-        private static ParameterExpression[] parameters;
+        private static List<ParameterExpression> parameters = new List<ParameterExpression>();
 
         static ExpressionTreeBuilder()
         {
             keyValuePairs = new Dictionary<Type, OperationPriority>()
             {
-                { typeof(PowerExpression), OperationPriority.PowerExpression },
-                { typeof(MultiplyExpression), OperationPriority.MultiplyExpression },
-                { typeof(DivideExpression), OperationPriority.DivideExpression },
-                { typeof(AddExpression), OperationPriority.AddExpression },
-                { typeof(SubtractExpression), OperationPriority.SubtractExpression }
+                { typeof(PowerModel), OperationPriority.PowerExpression },
+                { typeof(MultiplyModel), OperationPriority.MultiplyExpression },
+                { typeof(DivideModel), OperationPriority.DivideExpression },
+                { typeof(AddModel), OperationPriority.AddExpression },
+                { typeof(SubtractModel), OperationPriority.SubtractExpression }
             };
         }
 
         public static IExpression TransformToExpressionTree(string input)
         {
             Parser parser = new Parser(input);
-            List<IExpression> initialExpressions = new List<IExpression>(parser.CreateObjectListFromFormula());
-            parameters = new ParameterExpression[parser.Parameters.Count];
-            parser.Parameters.CopyTo(parameters);
+            var initialExpressions = new List<IExpression>(parser.CreateObjectListFromFormula());
+            CreateParameterList(initialExpressions);
 
             for (int i = 0; i < keyValuePairs.Count; i++)
             {
@@ -34,19 +33,19 @@ namespace IndividualTask1
                 {
                     var expression = initialExpressions[j];
 
-                    if (!(expression is TerminalExpression)) continue;
+                    if (!(expression is NonTerminalExpression)) continue;
                     if (j == initialExpressions.Count - 1) break;
                     if (j == 0) continue;
 
                     int enumValue = (int)keyValuePairs[expression.GetType()];
 
-                    if (enumValue == i)
+                    if (enumValue / 10 == i)
                     {
-                        TerminalExpression terminal = (TerminalExpression)expression;
-                        terminal.leftExpression = initialExpressions[j - 1];
-                        terminal.rightExpression = initialExpressions[j + 1];
+                        var nonTerminal = (NonTerminalExpression)expression;
+                        nonTerminal.LeftExpression = initialExpressions[j - 1];
+                        nonTerminal.RightExpression = initialExpressions[j + 1];
 
-                        initialExpressions[j] = (IExpression)terminal;
+                        initialExpressions[j] = (IExpression)nonTerminal;
                         initialExpressions.RemoveAt(j - 1);
                         initialExpressions.RemoveAt(j);
                         j--;
@@ -55,6 +54,20 @@ namespace IndividualTask1
             }
 
             return initialExpressions.Count == 1 ? initialExpressions[0] : null;
+        }
+
+        private static void CreateParameterList(List<IExpression> initialExpressions)
+        {
+            foreach (IExpression expression in initialExpressions)
+            {
+                if (expression is ParameterModel)
+                {
+                    var par = Expression.Parameter(typeof(double));
+                    parameters.Add(par);
+
+                    ((ParameterModel)expression).Parameter = par;
+                }
+            }
         }
 
         public static T Build<T>(string formula)
@@ -82,10 +95,10 @@ namespace IndividualTask1
 
     enum OperationPriority
     {
-        PowerExpression,
-        MultiplyExpression,
+        PowerExpression = 0,
+        MultiplyExpression = 10,
         DivideExpression,
-        AddExpression,
+        AddExpression = 20,
         SubtractExpression
     }
 }

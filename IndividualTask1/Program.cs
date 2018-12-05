@@ -6,11 +6,11 @@ namespace IndividualTask1
     {
         static void Main(string[] args)
         {
-            string formula = "12 + 43.2312 ^ x ^ y - 32 / 12";
+            string formula = "1 + 10 - 5  + (3 - (2 * x)) * y";
 
             var result = ExpressionTreeBuilder.Build<Func<double, double, double>>(formula);
 
-            if (result != null) Console.WriteLine(result(12, 10));
+            if (result != null) Console.WriteLine(result(2, 1));
         }
 
     }

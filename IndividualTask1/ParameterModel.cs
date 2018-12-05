@@ -3,15 +3,15 @@ using System.Linq.Expressions;
 
 namespace IndividualTask1
 {
-    public class VariableExpression : IExpression
+    public class ParameterModel : IExpression
     {
         public ParameterExpression Parameter { get; set; }
 
-        public VariableExpression()
+        public ParameterModel()
         {
         }
 
-        public VariableExpression(ParameterExpression ex)
+        public ParameterModel(ParameterExpression ex)
         {
             Parameter = ex;
         }
