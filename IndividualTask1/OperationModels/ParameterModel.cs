@@ -6,6 +6,7 @@ namespace IndividualTask1
     public class ParameterModel : IExpression
     {
         public ParameterExpression Parameter { get; set; }
+        public string ParameterName { get; set; }
 
         public ParameterModel()
         {

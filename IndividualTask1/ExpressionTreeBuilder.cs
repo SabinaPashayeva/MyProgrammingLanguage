@@ -6,12 +6,11 @@ namespace IndividualTask1
 {
     public static class ExpressionTreeBuilder
     {
-        private static Dictionary<Type, OperationPriority> keyValuePairs;
-        private static List<ParameterExpression> parameters = new List<ParameterExpression>();
+        private static Dictionary<Type, OperationPriority> priorities;
 
         static ExpressionTreeBuilder()
         {
-            keyValuePairs = new Dictionary<Type, OperationPriority>()
+            priorities = new Dictionary<Type, OperationPriority>()
             {
                 { typeof(PowerModel), OperationPriority.PowerExpression },
                 { typeof(MultiplyModel), OperationPriority.MultiplyExpression },
@@ -23,11 +22,11 @@ namespace IndividualTask1
 
         public static IExpression TransformToExpressionTree(string input)
         {
-            Parser parser = new Parser(input);
+            ArithmeticalParser parser = new ArithmeticalParser(input);
             var initialExpressions = new List<IExpression>(parser.CreateObjectListFromFormula());
             CreateParameterList(initialExpressions);
 
-            for (int i = 0; i < keyValuePairs.Count; i++)
+            for (int i = 0; i < priorities.Count; i++)
             {
                 for (int j = 0; j < initialExpressions.Count; j++)
                 {
@@ -37,7 +36,7 @@ namespace IndividualTask1
                     if (j == initialExpressions.Count - 1) break;
                     if (j == 0) continue;
 
-                    int enumValue = (int)keyValuePairs[expression.GetType()];
+                    int enumValue = (int)priorities[expression.GetType()];
 
                     if (enumValue / 10 == i)
                     {
@@ -62,35 +61,36 @@ namespace IndividualTask1
             {
                 if (expression is ParameterModel)
                 {
-                    var par = Expression.Parameter(typeof(double));
-                    parameters.Add(par);
+                    var variableName = ((ParameterModel)expression).ParameterName;
+                    var paramDict = VariableAssignModel.Parameters;
 
-                    ((ParameterModel)expression).Parameter = par;
+                    if (paramDict.ContainsKey(variableName))
+                        ((ParameterModel)expression).Parameter = paramDict[variableName];
                 }
             }
         }
 
-        public static T Build<T>(string formula)
-        {
-            var expression = TransformToExpressionTree(formula);
+        //public static T Build<T>(string formula)
+        //{
+        //    var expression = TransformToExpressionTree(formula);
 
-            try
-            {
-                var lambdaExpr = Expression.Lambda<T>(expression.Interpret(), parameters);
+        //    try
+        //    {
+        //        var lambdaExpr = Expression.Lambda<T>(expression.Interpret(), parameters);
 
-                return lambdaExpr.Compile();
-            }
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine(ex.Message);
-                return default(T);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                Console.WriteLine(nullEx.Message);
-                return default(T);
-            }
-        }
+        //        return lambdaExpr.Compile();
+        //    }
+        //    catch (ArgumentException ex)
+        //    {
+        //        Console.WriteLine(ex.Message);
+        //        return default(T);
+        //    }
+        //    catch (NullReferenceException nullEx)
+        //    {
+        //        Console.WriteLine(nullEx.Message);
+        //        return default(T);
+        //    }
+        //}
     }
 
     enum OperationPriority

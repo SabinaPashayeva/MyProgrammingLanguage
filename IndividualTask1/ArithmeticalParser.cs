@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace IndividualTask1
 {
-    public class Parser
+    public class ArithmeticalParser
     {
         private string _inputString;
 
@@ -17,17 +17,18 @@ namespace IndividualTask1
         static readonly Regex multRegex = new Regex("\\*");
         static readonly Regex divideRegex = new Regex("\\/");
         static readonly Regex powerRegex = new Regex("\\^");
-        static readonly Regex parenthesesRegex = new Regex("(?<=\\().+(\\(.+" +
-                                                           "\\))*.*(?=\\))");
+        static readonly Regex parenthesesRegex = new Regex("(?<=\\()[^\\)]+(\\(.+" +
+                                                           "\\))*[^\\(]*(?=\\))");
 
 
         private readonly Dictionary<Regex, Func<IExpression>> typeList;
 
-        public Parser(string input)
+        public ArithmeticalParser(string input)
         {
             _inputString = input;
 
             typeList = new Dictionary<Regex, Func<IExpression>> {
+                { parenthesesRegex, () => { return new ParenthesesModel(); }},
                 { constantRegex, () => { return new NumberModel(); }},
                 { plusRegex, () => { return new AddModel(); }},
                 { minusRegex, () => { return new SubtractModel(); }},
@@ -44,21 +45,17 @@ namespace IndividualTask1
             Dictionary<int, IExpression> emptyObjectPosition =
                 new Dictionary<int, IExpression>();
 
-            foreach (Match formula in parenthesesRegex.Matches(_inputString))
-            {
-                emptyObjectPosition.Add(formula.Index,
-                                        GetNestedExpression(formula.Value));
-
-                ChangeCharacters(ref _inputString, formula.Index,
-                                 formula.Value.Length);
-            }
-
             foreach (Regex pattern in typeList.Keys)
             {
                 foreach (Match match in pattern.Matches(_inputString))
+                {
                     emptyObjectPosition.Add(match.Index,
-                                            CreateCorrespondingObject(pattern,
-                                                                      match.Value));
+                                                CreateCorrespondingObject(pattern,
+                                                                          match.Value));
+                    if (pattern == parenthesesRegex)
+                        ChangeCharacters(ref _inputString, match.Index,
+                                 match.Value.Length);
+                }
             }
 
             var list = emptyObjectPosition
@@ -73,8 +70,15 @@ namespace IndividualTask1
         {
             var expression = typeList[pattern]();
 
+            //Pattern Visitor
             if (expression is NumberModel)
-                ((NumberModel)expression).Constant = Double.Parse(input);
+                ((NumberModel)expression).Constant = double.Parse(input);
+
+            if (expression is ParenthesesModel)
+                expression = new ParenthesesModel(input);
+
+            if (expression is ParameterModel)
+                ((ParameterModel)expression).ParameterName = input;
 
             return expression;
         }

@@ -1,0 +1,11 @@
+﻿write => 12 + (4 * (2 * 1)) - (40 + 10) / 5
+write=> "Hello"
+write => "Hiiiii"
+write=>"* Hello world *"
+a <= 12
+write=>a
+b <= a * 2
+write => b + 23
+write=>"a"
+c <= "2"
+write=>c
