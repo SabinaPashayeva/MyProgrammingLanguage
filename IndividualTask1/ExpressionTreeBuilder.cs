@@ -41,8 +41,9 @@ namespace IndividualTask1
                     if (enumValue / 10 == i)
                     {
                         var nonTerminal = (NonTerminalExpression)expression;
-                        nonTerminal.LeftExpression = initialExpressions[j - 1];
-                        nonTerminal.RightExpression = initialExpressions[j + 1];
+
+                        nonTerminal.SetExpressions(initialExpressions[j - 1],
+                                                   initialExpressions[j + 1]);
 
                         initialExpressions[j] = (IExpression)nonTerminal;
                         initialExpressions.RemoveAt(j - 1);
@@ -65,32 +66,32 @@ namespace IndividualTask1
                     var paramDict = VariableAssignModel.Parameters;
 
                     if (paramDict.ContainsKey(variableName))
-                        ((ParameterModel)expression).Parameter = paramDict[variableName];
+                        ((ParameterModel)expression).SetParameter(paramDict[variableName]);
                 }
             }
         }
 
-        //public static T Build<T>(string formula)
-        //{
-        //    var expression = TransformToExpressionTree(formula);
+        public static T Build<T>(string formula)
+        {
+            var expression = TransformToExpressionTree(formula);
 
-        //    try
-        //    {
-        //        var lambdaExpr = Expression.Lambda<T>(expression.Interpret(), parameters);
+            try
+            {
+                var lambdaExpr = Expression.Lambda<T>(expression.Interpret());
 
-        //        return lambdaExpr.Compile();
-        //    }
-        //    catch (ArgumentException ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //        return default(T);
-        //    }
-        //    catch (NullReferenceException nullEx)
-        //    {
-        //        Console.WriteLine(nullEx.Message);
-        //        return default(T);
-        //    }
-        //}
+                return lambdaExpr.Compile();
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return default(T);
+            }
+            catch (NullReferenceException nullEx)
+            {
+                Console.WriteLine(nullEx.Message);
+                return default(T);
+            }
+        }
     }
 
     enum OperationPriority

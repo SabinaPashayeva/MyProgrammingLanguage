@@ -12,7 +12,7 @@ namespace IndividualTask1
         static readonly Regex nameRegex = new Regex("[a-zA-Z]+(?=\\s*<=)");
         static readonly Regex rightValueRegex = new Regex("(?<=<=).+");
         static readonly Regex stringRegex = new Regex("(?<=\").*(?=\")");
-        public static Dictionary<string, ParameterExpression> Parameters;
+        public static Dictionary<string, ParameterExpression> Parameters { get; private set; }
 
         public VariableAssignModel(string command)
         {
@@ -45,11 +45,24 @@ namespace IndividualTask1
             return regex.Match(input).Value;
         }
 
+        private void AddToDictionary(string name, ParameterExpression parameter)
+        {
+            if (parameter == null) return;
+
+            if (Parameters.ContainsKey(name))
+            {
+                Parameters[name] = parameter;
+                return;
+            }
+
+            Parameters.Add(name, parameter);
+        }
+
         public Expression Interpret()
         {
             var parameter = Expression.Parameter(typeof(double));
             var rightExpression = GetExpression(RightStatement);
-            Parameters.Add(VariableName, parameter);
+            AddToDictionary(VariableName, parameter);
 
             return Expression.Assign(parameter, rightExpression);
         }

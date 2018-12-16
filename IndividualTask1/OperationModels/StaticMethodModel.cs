@@ -23,7 +23,9 @@ namespace IndividualTask1
         {
             var methodName = GetMatch(nameRegex, command);
 
-            CurrentMethod = staticMethods[methodName];
+            if (staticMethods.ContainsKey(methodName))
+                CurrentMethod = staticMethods[methodName];
+
             RightValue = GetMatch(rightValueRegex, command);
         }
 

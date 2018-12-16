@@ -15,13 +15,34 @@ namespace IndividualTask1
             foreach (var line in lines)
             {
                 var tmpExpression = Parser.GetExpression(line);
-                expressions.Add(tmpExpression.Interpret());
+
+                if (TryInterpet(tmpExpression))
+                    expressions.Add(tmpExpression.Interpret());
             }
 
             var block = Expression.Block(VariableAssignModel.Parameters.Values,
                                          expressions);
 
             Expression.Lambda<Action>(block).Compile()();
+        }
+
+        private static bool TryInterpet(IExpression expression)
+        {
+            try
+            {
+                expression.Interpret();
+                return true;
+            }
+            catch (ArgumentException ax)
+            {
+                Console.WriteLine(ax.Message);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
         }
     }
 }

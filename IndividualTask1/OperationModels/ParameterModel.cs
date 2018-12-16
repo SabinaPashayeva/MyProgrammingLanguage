@@ -5,16 +5,21 @@ namespace IndividualTask1
 {
     public class ParameterModel : IExpression
     {
-        public ParameterExpression Parameter { get; set; }
-        public string ParameterName { get; set; }
+        public ParameterExpression Parameter { get; private set; }
+        public string ParameterName { get; private set; }
 
         public ParameterModel()
         {
         }
 
-        public ParameterModel(ParameterExpression ex)
+        public ParameterModel(string name)
         {
-            Parameter = ex;
+            ParameterName = name;
+        }
+
+        public void SetParameter(ParameterExpression param)
+        {
+            if (param != null) Parameter = param;
         }
 
         public Expression Interpret()

@@ -21,13 +21,15 @@ namespace IndividualTask1
                                                            "\\))*[^\\(]*(?=\\))");
 
 
-        private readonly Dictionary<Regex, Func<IExpression>> typeList;
+        readonly Dictionary<Regex, Func<IExpression>> typeList;
+        readonly Dictionary<Type, Func<string, IExpression>> terminalExpressions;
 
         public ArithmeticalParser(string input)
         {
             _inputString = input;
 
-            typeList = new Dictionary<Regex, Func<IExpression>> {
+            typeList = new Dictionary<Regex, Func<IExpression>>
+            {
                 { parenthesesRegex, () => { return new ParenthesesModel(); }},
                 { constantRegex, () => { return new NumberModel(); }},
                 { plusRegex, () => { return new AddModel(); }},
@@ -38,6 +40,15 @@ namespace IndividualTask1
                 { parameterRegex, () => { return new ParameterModel(); }}
             };
 
+            terminalExpressions = new Dictionary<Type, Func<string, IExpression>>
+            {
+                { typeof(NumberModel),
+                    (str) => { return new NumberModel(double.Parse(str)); }},
+                { typeof(ParenthesesModel),
+                    (str) => { return new ParenthesesModel(str); }},
+                { typeof(ParameterModel),
+                    (str) => { return new ParameterModel(str);  }}
+            };
         }
 
         public List<IExpression> CreateObjectListFromFormula()
@@ -70,15 +81,13 @@ namespace IndividualTask1
         {
             var expression = typeList[pattern]();
 
-            //Pattern Visitor
-            if (expression is NumberModel)
-                ((NumberModel)expression).Constant = double.Parse(input);
+            foreach (var type in terminalExpressions.Keys)
+            {
+                if (expression.GetType() != type)
+                    continue;
 
-            if (expression is ParenthesesModel)
-                expression = new ParenthesesModel(input);
-
-            if (expression is ParameterModel)
-                ((ParameterModel)expression).ParameterName = input;
+                return terminalExpressions[type](input);
+            }
 
             return expression;
         }
