@@ -7,42 +7,23 @@ namespace IndividualTask1
 {
     public class VariableAssignModel : IExpression
     {
+        private static readonly Regex nameRegex = new Regex("[a-zA-Z]+(?=\\s*<=)");
+        private static readonly Regex rightValueRegex = new Regex("(?<=<=).+");
+
+        public static Dictionary<string, ParameterExpression> Parameters { get; private set; }
+
         private string VariableName { get; set; }
         private string RightStatement { get; set; }
-        static readonly Regex nameRegex = new Regex("[a-zA-Z]+(?=\\s*<=)");
-        static readonly Regex rightValueRegex = new Regex("(?<=<=).+");
-        static readonly Regex stringRegex = new Regex("(?<=\").*(?=\")");
-        public static Dictionary<string, ParameterExpression> Parameters { get; private set; }
 
         public VariableAssignModel(string command)
         {
-            VariableName = GetMatch(nameRegex, command);
-            RightStatement = GetMatch(rightValueRegex, command);
+            VariableName = nameRegex.Match(command).Value;
+            RightStatement = rightValueRegex.Match(command).Value;
         }
 
         static VariableAssignModel()
         {
             Parameters = new Dictionary<string, ParameterExpression>();
-        }
-
-        private Expression GetExpression(string value)
-        {
-            var tmpString = GetMatch(stringRegex, value);
-
-            if (tmpString == string.Empty)
-                return ExpressionTreeBuilder
-                        .TransformToExpressionTree(value)
-                        .Interpret();
-
-            if (!double.TryParse(tmpString, out double number))
-                return default(Expression);
-
-            return Expression.Constant(number);
-        }
-
-        private string GetMatch(Regex regex, string input)
-        {
-            return regex.Match(input).Value;
         }
 
         private void AddToDictionary(string name, ParameterExpression parameter)
@@ -61,10 +42,11 @@ namespace IndividualTask1
         public Expression Interpret()
         {
             var parameter = Expression.Parameter(typeof(double));
-            var rightExpression = GetExpression(RightStatement);
-            AddToDictionary(VariableName, parameter);
 
-            return Expression.Assign(parameter, rightExpression);
+            AddToDictionary(VariableName, parameter);
+            var rigthValueParser = new RightStatementParser(RightStatement, typeof(double));
+
+            return Expression.Assign(parameter, rigthValueParser.GetRightExpression());
         }
     }
 }

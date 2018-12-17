@@ -16,8 +16,8 @@ namespace IndividualTask1
             {
                 var tmpExpression = Parser.GetExpression(line);
 
-                if (TryInterpet(tmpExpression))
-                    expressions.Add(tmpExpression.Interpret());
+                if (TryCompileLine(tmpExpression, out Expression compiledExpression))
+                    expressions.Add(compiledExpression);
             }
 
             var block = Expression.Block(VariableAssignModel.Parameters.Values,
@@ -26,16 +26,19 @@ namespace IndividualTask1
             Expression.Lambda<Action>(block).Compile()();
         }
 
-        private static bool TryInterpet(IExpression expression)
+        private static bool TryCompileLine(IExpression expression,
+                                        out Expression compiledExpression)
         {
+            compiledExpression = null;
+
             try
             {
-                expression.Interpret();
+                compiledExpression = expression.Interpret();
                 return true;
             }
-            catch (ArgumentException ax)
+            catch (ArgumentException ex)
             {
-                Console.WriteLine(ax.Message);
+                Console.WriteLine(ex.Message);
                 return false;
             }
             catch (Exception ex)

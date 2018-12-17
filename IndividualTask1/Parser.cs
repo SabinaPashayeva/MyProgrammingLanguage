@@ -7,9 +7,9 @@ namespace IndividualTask1
 {
     public static class Parser
     {
-        static readonly Dictionary<Regex, Func<string, IExpression>> typeList;
-        static readonly Regex staticMethodRegex = new Regex("[a-zA-Z].*=>.+");
-        static readonly Regex variableAssignRegex = new Regex("[a-zA-Z].*<=.+");
+        private static readonly Dictionary<Regex, Func<string, IExpression>> typeList;
+        private static readonly Regex staticMethodRegex = new Regex("[a-zA-Z].*=>.+");
+        private static readonly Regex variableAssignRegex = new Regex("[a-zA-Z].*<=.+");
 
         static Parser()
         {

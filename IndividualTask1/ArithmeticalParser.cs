@@ -8,21 +8,21 @@ namespace IndividualTask1
 {
     public class ArithmeticalParser
     {
-        private string _inputString;
-
-        static readonly Regex constantRegex = new Regex("\\b\\d+(\\.\\d*)?\\b");
-        static readonly Regex parameterRegex = new Regex("\\b[a-z,A-Z]\\w*\\b");
-        static readonly Regex plusRegex = new Regex("\\+");
-        static readonly Regex minusRegex = new Regex("\\-");
-        static readonly Regex multRegex = new Regex("\\*");
-        static readonly Regex divideRegex = new Regex("\\/");
-        static readonly Regex powerRegex = new Regex("\\^");
-        static readonly Regex parenthesesRegex = new Regex("(?<=\\()[^\\)]+(\\(.+" +
+        private static readonly Regex constantRegex = new Regex("\\b\\d+(\\.\\d*)?\\b");
+        private static readonly Regex parameterRegex = new Regex("\\b[a-z,A-Z]\\w*\\b");
+        private static readonly Regex plusRegex = new Regex("\\+");
+        private static readonly Regex minusRegex = new Regex("\\-");
+        private static readonly Regex multRegex = new Regex("\\*");
+        private static readonly Regex divideRegex = new Regex("\\/");
+        private static readonly Regex powerRegex = new Regex("\\^");
+        private static readonly Regex parenthesesRegex = new Regex("(?<=\\()[^\\)]+(\\(.+" +
                                                            "\\))*[^\\(]*(?=\\))");
 
 
-        readonly Dictionary<Regex, Func<IExpression>> typeList;
-        readonly Dictionary<Type, Func<string, IExpression>> terminalExpressions;
+        private readonly Dictionary<Regex, Func<IExpression>> typeList;
+        private readonly Dictionary<Type, Func<string, IExpression>> terminalExpressions;
+
+        private string _inputString;
 
         public ArithmeticalParser(string input)
         {
@@ -102,11 +102,6 @@ namespace IndividualTask1
             }
 
             input = new string(result);
-        }
-
-        private IExpression GetNestedExpression(string input)
-        {
-            return ExpressionTreeBuilder.TransformToExpressionTree(input);
         }
     }
 }

@@ -8,12 +8,12 @@ namespace IndividualTask1
 {
     public class StaticMethodModel : IExpression
     {
+        private static readonly Regex nameRegex = new Regex("[a-zA-Z]+(?=\\s*=>)");
+        private static readonly Regex rightValueRegex = new Regex("(?<==>).+");
+
         private MethodInfo CurrentMethod { get; set; }
         private string RightValue { get; set; }
         private static Dictionary<string, MethodInfo> staticMethods;
-        static readonly Regex nameRegex = new Regex("[a-zA-Z]+(?=\\s*=>)");
-        static readonly Regex rightValueRegex = new Regex("(?<==>).+");
-        static readonly Regex stringRegex = new Regex("(?<=\").*(?=\")");
 
         public StaticMethodModel()
         {
@@ -21,12 +21,12 @@ namespace IndividualTask1
 
         public StaticMethodModel(string command)
         {
-            var methodName = GetMatch(nameRegex, command);
+            var methodName = nameRegex.Match(command).Value;
 
             if (staticMethods.ContainsKey(methodName))
                 CurrentMethod = staticMethods[methodName];
 
-            RightValue = GetMatch(rightValueRegex, command);
+            RightValue = rightValueRegex.Match(command).Value;
         }
 
         static StaticMethodModel()
@@ -38,22 +38,6 @@ namespace IndividualTask1
                                       new Type[] { typeof(string) })
                 }
             };
-        }
-
-        private Expression GetExpression(string value)
-        {
-            var tmpString = GetMatch(stringRegex, value);
-
-            if (tmpString != string.Empty)
-                return Expression.Constant(tmpString);
-
-            var expression = ExpressionTreeBuilder
-                            .TransformToExpressionTree(value)
-                            .Interpret();
-
-            return Expression.Call(expression, typeof(double)
-                                               .GetMethod("ToString",
-                                                           new Type[] { }));
         }
 
         private static void AddStaticMethod(string name, MethodInfo method)
@@ -69,16 +53,11 @@ namespace IndividualTask1
             staticMethods.Add(name, method);
         }
 
-        private string GetMatch(Regex regex, string input)
-        {
-            return regex.Match(input).Value;
-        }
-
         public Expression Interpret()
         {
-            var rigthExpression = GetExpression(RightValue);
+            var rigthValueParser = new RightStatementParser(RightValue, typeof(string));
 
-            return Expression.Call(CurrentMethod, rigthExpression);
+            return Expression.Call(CurrentMethod, rigthValueParser.GetRightExpression());
         }
     }
 }
