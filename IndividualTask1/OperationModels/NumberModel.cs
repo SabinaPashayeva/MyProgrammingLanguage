@@ -4,8 +4,8 @@ using System.Linq.Expressions;
 namespace IndividualTask1
 {
     public class NumberModel : IExpression
-    { 
-        public double Constant { get; set; }
+    {
+        public double Constant { get; private set; }
 
         public NumberModel()
         {
@@ -13,7 +13,7 @@ namespace IndividualTask1
 
         public NumberModel(double constant)
         {
-            this.Constant = constant;
+            Constant = constant;
         }
 
         public Expression Interpret()
