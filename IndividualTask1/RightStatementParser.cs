@@ -18,6 +18,8 @@ namespace IndividualTask1
 
         public Expression GetRightExpression()
         {
+            if (_command == string.Empty) return Expression.Constant(_command);
+
             if (TryParseString(_command, out string resultStr))
                 return GetConstantExpression(resultStr);
 

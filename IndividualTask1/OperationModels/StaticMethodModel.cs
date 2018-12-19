@@ -13,44 +13,16 @@ namespace IndividualTask1
 
         private MethodInfo CurrentMethod { get; set; }
         private string RightValue { get; set; }
-        private static Dictionary<string, MethodInfo> staticMethods;
-
-        public StaticMethodModel()
-        {
-        }
 
         public StaticMethodModel(string command)
         {
             var methodName = nameRegex.Match(command).Value;
 
+            var staticMethods = new AdditionalMethods();
             if (staticMethods.ContainsKey(methodName))
                 CurrentMethod = staticMethods[methodName];
 
             RightValue = rightValueRegex.Match(command).Value;
-        }
-
-        static StaticMethodModel()
-        {
-            staticMethods = new Dictionary<string, MethodInfo>
-            {
-                { "write", typeof(Console)
-                           .GetMethod("WriteLine",
-                                      new Type[] { typeof(string) })
-                }
-            };
-        }
-
-        private static void AddStaticMethod(string name, MethodInfo method)
-        {
-            if (method == null) return;
-
-            if (staticMethods.ContainsKey(name))
-            {
-                staticMethods[name] = method;
-                return;
-            }
-
-            staticMethods.Add(name, method);
         }
 
         public Expression Interpret()

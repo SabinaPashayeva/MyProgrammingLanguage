@@ -53,7 +53,9 @@ namespace IndividualTask1
                 }
             }
 
-            return initialExpressions.Count == 1 ? initialExpressions[0] : null;
+            return initialExpressions.Count == 1 ? initialExpressions[0] :
+                throw new ArgumentException("Wrong expression!");
+
         }
 
         private static void CreateParameterList(List<IExpression> initialExpressions)
@@ -68,28 +70,6 @@ namespace IndividualTask1
                     if (paramDict.ContainsKey(variableName))
                         ((ParameterModel)expression).SetParameter(paramDict[variableName]);
                 }
-            }
-        }
-
-        public static T Build<T>(string formula)
-        {
-            var expression = TransformToExpressionTree(formula);
-
-            try
-            {
-                var lambdaExpr = Expression.Lambda<T>(expression.Interpret());
-
-                return lambdaExpr.Compile();
-            }
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine(ex.Message);
-                return default(T);
-            }
-            catch (NullReferenceException nullEx)
-            {
-                Console.WriteLine(nullEx.Message);
-                return default(T);
             }
         }
     }

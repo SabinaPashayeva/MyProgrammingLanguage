@@ -8,6 +8,5 @@ namespace IndividualTask1
         {
             FileCompiler.Compile("myProgram.txt");
         }
-
     }
 }
