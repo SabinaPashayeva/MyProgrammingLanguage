@@ -10,4 +10,7 @@
     <Compile Remove="ParameterExpression.cs" />
     <Compile Remove="Context.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="OperationModels\" />
+  </ItemGroup>
 </Project>

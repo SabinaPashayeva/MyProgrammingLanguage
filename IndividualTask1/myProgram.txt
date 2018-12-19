@@ -1,0 +1,13 @@
+﻿write => 12 + (4 * (2 * 1)) - (40 + 10) / 5
+write=> "Hello"
+write=>"* Hello world *"
+a <= 12
+write=>a
+b <= a * 2
+write => b + a
+write=>"a"
+c <= "2"
+write=>c
+factorial => 2 + 4
+convert => 123542
+calculate =>
